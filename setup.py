@@ -48,17 +48,18 @@ setup(
         'pyalgotrade.twitter',
         'pyalgotrade.utils',
         'pyalgotrade.websocket',
-        'pyalgotrade.xignite',
     ],
     install_requires=[
-        'numpy',
-        'pytz',
+        "numpy",
+        "pytz",
+        "python-dateutil",
+        "requests",
     ],
     extras_require={
         'Scipy':  ["scipy"],
         'TALib':  ["Cython", "TA-Lib"],
         'Plotting':  ["matplotlib"],
-        'Bitstamp':  ["ws4py", "tornado"],
+        'Bitstamp':  ["ws4py>=0.3.4", "tornado"],
         'Twitter':  ["tweepy"],
     },
 )

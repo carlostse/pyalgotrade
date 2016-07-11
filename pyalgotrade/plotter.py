@@ -21,6 +21,7 @@
 import collections
 
 import broker
+from pyalgotrade import warninghelpers
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker
@@ -105,7 +106,7 @@ class SellMarker(Series):
 
 class CustomMarker(Series):
     def __init__(self):
-        Series.__init__(self)
+        super(CustomMarker, self).__init__()
         self.__marker = "o"
 
     def needColor(self):
@@ -120,7 +121,7 @@ class CustomMarker(Series):
 
 class LineMarker(Series):
     def __init__(self):
-        Series.__init__(self)
+        super(LineMarker, self).__init__()
         self.__marker = " "
 
     def needColor(self):
@@ -135,7 +136,7 @@ class LineMarker(Series):
 
 class InstrumentMarker(Series):
     def __init__(self):
-        Series.__init__(self)
+        super(InstrumentMarker, self).__init__()
         self.__useAdjClose = None
         self.__marker = " "
 
@@ -279,7 +280,7 @@ class Subplot(object):
 class InstrumentSubplot(Subplot):
     """A Subplot responsible for plotting an instrument."""
     def __init__(self, instrument, plotBuySell):
-        Subplot.__init__(self)
+        super(InstrumentSubplot, self).__init__()
         self.__instrument = instrument
         self.__plotBuySell = plotBuySell
         self.__instrumentSeries = self.getSeries(instrument, InstrumentMarker)
@@ -288,7 +289,7 @@ class InstrumentSubplot(Subplot):
         self.__instrumentSeries.setUseAdjClose(useAdjClose)
 
     def onBars(self, bars):
-        Subplot.onBars(self, bars)
+        super(InstrumentSubplot, self).onBars(bars)
         bar = bars.getBar(self.__instrument)
         if bar:
             dateTime = bars.getDateTime()
@@ -418,30 +419,25 @@ class StrategyPlotter(object):
 
         return (fig, mplSubplots)
 
-    def buildFigures(self, fromDateTime=None, toDateTime=None):
+    def buildFigure(self, fromDateTime=None, toDateTime=None):
+        # Deprecated in v0.18.
+        warninghelpers.deprecation_warning("buildFigure will be deprecated in the next version. Use buildFigureAndSubplots.", stacklevel=2)
+
+        fig, _ = self.buildFigureAndSubplots(fromDateTime, toDateTime)
+        return fig
+
+    def buildFigureAndSubplots(self, fromDateTime=None, toDateTime=None):
         """Builds a matplotlib.figure.Figure with the subplots. Must be called after running the strategy.
 
         :param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
         :type fromDateTime: datetime.datetime
         :param toDateTime: An optional ending datetime.datetime. Everything after it won't get plotted.
         :type toDateTime: datetime.datetime
-        :rtype: matplotlib.figure.Figure.
+        :rtype: A 2 element tuple with matplotlib.figure.Figure and subplots.
         """
         fig, mplSubplots = self.__buildFigureImpl(fromDateTime, toDateTime)
         fig.autofmt_xdate()
         return fig, mplSubplots
-
-    def buildFigure(self, fromDateTime=None, toDateTime=None):
-        """Builds a matplotlib.figure.Figure with the subplots. Must be called after running the strategy.
-
-        :param fromDateTime: An optional starting datetime.datetime. Everything before it won't get plotted.
-        :type fromDateTime: datetime.datetime
-        :param toDateTime: An optional ending datetime.datetime. Everything after it won't get plotted.
-        :type toDateTime: datetime.datetime
-        :rtype: matplotlib.figure.Figure.
-        """
-        fig, _ = self.buildFigures(self, fromDateTime, toDateTime)
-        return fig
 
     def plot(self, fromDateTime=None, toDateTime=None):
         """Plots the strategy execution. Must be called after running the strategy.
